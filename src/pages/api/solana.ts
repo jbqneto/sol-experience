@@ -1,5 +1,3 @@
-import { pumpfunService } from '@/service/pumpfun.service';
-import { ScrapperService } from '@/service/scrapper.service';
 import { TOKEN_PROGRAM_ID } from '@raydium-io/raydium-sdk';
 import * as Web3 from '@solana/web3.js';
 import * as BS from 'bs58';
@@ -9,13 +7,12 @@ type ResponseData = {
     message: string
 }
 
-const CHAIN_URL = 'https://solana-mainnet.core.chainstack.com/466bd3aa07098b39e3fa7bbc6e21e577';
+const CHAIN_URL = '';
 const DEV_URL = Web3.clusterApiUrl('mainnet-beta');
 const MAIN_URL = Web3.clusterApiUrl('devnet');
+const PRIORITY_RATE = 100;
 
 console.log("URLS: ", DEV_URL, MAIN_URL);
-
-const scrapper = new ScrapperService();
 
 const connection = new Web3.Connection(CHAIN_URL);
 
@@ -46,6 +43,10 @@ function getAccount(): Web3.Keypair | null {
     const pvKey = new Uint8Array(BS.default.decode(key));
 
     return Web3.Keypair.fromSecretKey(pvKey);
+}
+
+function getPriorityFee(): Web3.TransactionInstruction {
+    return Web3.ComputeBudgetProgram.setComputeUnitPrice({ microLamports: PRIORITY_RATE });
 }
 
 async function transfer(to: string, amount: number) {
@@ -97,14 +98,6 @@ const formatTransaction = (transaction: Web3.VersionedTransactionResponse): any 
     };
 }
 
-const scrapFromSolscan = async (token: any): Promise<string> => {
-    const { info } = token;
-    console.log(info);
-    const url = "https://solscan.io/token/" + info.mint;
-    return scrapper.scrap(url);
-
-}
-
 const getTransactions = async (publicKey: Web3.PublicKey) => {
     try {
         const transactions: any[] = [];
@@ -154,7 +147,7 @@ export default async function handler(
 
     if (pubKey) {
         data.account = wallet;
-        //    data.transactions = await getTransactions(pubKey);
+        data.transactions = await getTransactions(pubKey);
         data.sol = await connection.getBalance(pubKey);
         data.tokens = await getTokensBalances(pubKey);
     }
