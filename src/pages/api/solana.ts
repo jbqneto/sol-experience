@@ -122,41 +122,8 @@ export default async function handler(
     res: NextApiResponse<any>
 ) {
 
-    const account = getAccount();
-    let data: any = {};
-    let response: ResponseData = {
-        message: ""
-    };
 
-    let wallet = req.query["wallet"];
 
-    let pubKey: Web3.PublicKey | null = null;
-
-    if (wallet && typeof wallet === 'string') {
-        wallet = wallet.trim();
-        pubKey = new Web3.PublicKey(wallet)
-
-    } else if (account) {
-        pubKey = account.publicKey;
-    } else {
-        data.error = "Could not retrieve local wallet";
-    }
-
-    if (pubKey) {
-        data.account = wallet;
-        data.transactions = await getTransactions(pubKey);
-        data.sol = await connection.getBalance(pubKey);
-        data.tokens = await getTokensBalances(pubKey);
-    }
-
-    if (data.transactions?.length > 0) {
-        data.transactions = [data.transactions.shift()];
-    }
-
-    if (data.sol) {
-        data.sol = data.sol / Web3.LAMPORTS_PER_SOL;
-    }
-
-    res.status(200).json(data);
+    res.status(200).json({});
 
 }
