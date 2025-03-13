@@ -7,7 +7,7 @@ type ResponseData = {
     message: string
 }
 
-const CHAIN_URL = '';
+const CHAIN_URL = 'https://api.mainnet-beta.solana.com';
 const DEV_URL = Web3.clusterApiUrl('mainnet-beta');
 const MAIN_URL = Web3.clusterApiUrl('devnet');
 const PRIORITY_RATE = 100;
@@ -128,10 +128,7 @@ export default async function handler(
         message: ""
     };
 
-    const projects = pumpfunService.getProjects();
     let wallet = req.query["wallet"];
-
-    console.log(projects);
 
     let pubKey: Web3.PublicKey | null = null;
 
@@ -154,10 +151,6 @@ export default async function handler(
 
     if (data.transactions?.length > 0) {
         data.transactions = [data.transactions.shift()];
-    }
-
-    if (data.tokens?.length > 0) {
-        data.solscan = await scrapFromSolscan(data.tokens[0]);
     }
 
     if (data.sol) {
